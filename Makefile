@@ -1,2 +1,2 @@
 logic:
-	gcc parser.c parser.h -o parser
+	gcc *.c *.h -o parser
