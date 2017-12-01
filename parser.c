@@ -9,6 +9,7 @@
 #define EXIT_INVALID_CHARS  3
 #define EXIT_ATOMIC_PARENS  4
 #define EXIT_TWO_ATOMS      5
+#define EXIT_LOWERCASE      6
 
 void exit_args() {
   printf("Not enough arguments. Terminating.\nError code: %d\n", EXIT_ARGS);
@@ -21,7 +22,7 @@ void exit_parens() {
 }
 
 void exit_invalid_chars() {
-  printf("Mismatched parentheses. Terminating.\nError code: %d\n", EXIT_INVALID_CHARS);
+  printf("Input string contains invalid characters. Terminating.\nError code: %d\n", EXIT_INVALID_CHARS);
   exit(EXIT_INVALID_CHARS);
 }
 
@@ -31,8 +32,13 @@ void exit_atomic_parens() {
 }
 
 void exit_two_atoms() {
-  printf("Two consecutive atomic sentences with no binary connective linking them together. Terminating.\n Error code: %d\n", EXIT_TWO_ATOMS);
+  printf("Two consecutive atomic sentences with no binary connective linking them together. Terminating.\nError code: %d\n", EXIT_TWO_ATOMS);
   exit(EXIT_TWO_ATOMS);
+}
+
+void exit_lowercase() {
+  printf("String contains lowercase letters. All atomic sentences must be represented by uppercase letters. Terminating.\nError code: %d\n", EXIT_LOWERCASE);
+  exit(EXIT_LOWERCASE);
 }
 
 void *parse_sentence(char *input, sentence_t *sentence) {
@@ -75,6 +81,23 @@ void *parse_sentence(char *input, sentence_t *sentence) {
           prev_is_negation = 0;
         }
         break;
+      case '&':
+        // handle conjunction (AND) here
+	break;
+      case '|':
+        // handle disjunction (OR) here
+        break;
+      case '~':
+        // handle negation (NOT) here
+        break;
+      case '-':
+        // handle implication (IF) here
+	// remember lookahead
+	break;
+      case '<':
+        // handle biconditionals (IFF) here
+	// remember lookahead
+	break;
       case 'A':
       case 'B':
       case 'C':
@@ -104,19 +127,52 @@ void *parse_sentence(char *input, sentence_t *sentence) {
         if (!prev_is_atom) {
           sentence->atomic_sentence[atom_num];
           atom_num += 1;
+	  prev_is_atom = 1;
+	  prev_is_start_parens = 0;
+	  prev_is_end_parens = 0;
+	  prev_is_binary_connective = 0;
+	  prev_is_negation = 0;
         }
         else {
           exit_two_atoms();
         }
         break;
+      case 'a':
+      case 'b':
+      case 'c':
+      case 'd':
+      case 'e':
+      case 'f':
+      case 'g':
+      case 'h':
+      case 'i':
+      case 'j':
+      case 'k':
+      case 'l':
+      case 'm':
+      case 'n':
+      case 'o':
+      case 'p':
+      case 'q':
+      case 'r':
+      case 's':
+      case 't':
+      case 'u':
+      case 'v':
+      case 'w':
+      case 'x':
+      case 'y':
+      case 'z':
+        exit_lowercase();
+	break;
       default:
         exit_invalid_chars();
+        break;
     }
     i += 1;
   }
   if (in_parens) {
-    printf("Mismatched parentheses. Terminating.\n");
-    exit_parens;
+    exit_parens();
   }
 }
 
