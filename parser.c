@@ -10,6 +10,7 @@
 #define EXIT_ATOMIC_PARENS  4
 #define EXIT_TWO_ATOMS      5
 #define EXIT_LOWERCASE      6
+#define EXIT_BAD_CONNECTIVE 7
 
 void exit_args() {
   printf("Not enough arguments. Terminating.\nError code: %d\n", EXIT_ARGS);
@@ -39,6 +40,11 @@ void exit_two_atoms() {
 void exit_lowercase() {
   printf("String contains lowercase letters. All atomic sentences must be represented by uppercase letters. Terminating.\nError code: %d\n", EXIT_LOWERCASE);
   exit(EXIT_LOWERCASE);
+}
+
+void exit_bad_connective() {
+  printf("Input string contains invalid connective. Terminating.\nError code: %d\n", EXIT_BAD_CONNECTIVE);
+  exit(EXIT_BAD_CONNECTIVE);
 }
 
 void *parse_sentence(char *input, sentence_t *sentence) {
@@ -82,21 +88,32 @@ void *parse_sentence(char *input, sentence_t *sentence) {
         }
         break;
       case '&':
-        // handle conjunction (AND) here
+        sentence->connective = CONJUNCTION;
 	break;
       case '|':
-        // handle disjunction (OR) here
+        sentence->connective = DISJUNCTION;
         break;
       case '~':
-        // handle negation (NOT) here
+        sentence->connective = NEGATION;
         break;
+      case '=':
       case '-':
-        // handle implication (IF) here
-	// remember lookahead
+        if (input[i+1] == '>') {
+	  sentence->connective = CONDITIONAL;
+	  i += 1;
+	}
+	else {
+	  exit_bad_connective();
+	}
 	break;
       case '<':
-        // handle biconditionals (IFF) here
-	// remember lookahead
+	if ((input[i+1] == '-' || input[i+1] == '=') && input[i+2] == '>') {
+	  sentence->connective = BICONDITIONAL;
+	  i += 2;
+	}
+	else {
+	  exit_bad_connective();
+	}
 	break;
       case 'A':
       case 'B':
